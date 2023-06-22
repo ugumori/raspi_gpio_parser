@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  raspi_gpio_parser:
+    build:
+      context: .
+    image: raspi_gpio_parser:latest
+    ports:
+      - 9000:8080
+    environment:
+      - LOG_LEVEL=DEBUG
