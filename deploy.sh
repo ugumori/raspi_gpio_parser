@@ -1,6 +1,10 @@
 #!/bin/sh
 
-FUNC=raspi_gpio_parser
+# dockerイメージのビルド、タグ付け、ECRへのpush、Lambdaへのデプロイを一括して実行する.
+# docker loginは済ませておく.
+
+REPO_NAME=raspi_gpio/db_writer
+FUNC_NAME=raspi_gpio_db_writer
 
 ARGS=`echo $@ | sed -E 's/^[a-zA-Z0-9]*[ \f\n\r\t]*//g'`
 
@@ -12,8 +16,8 @@ fi
 ACCOUNT_ID=$1
 
 export DOCKER_BUILDKIT=1
-tar -cJh . | docker build -t $FUNC:latest --ssh default -
-docker tag $FUNC ${ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/$FUNC
-PUSH_RESULT=$(docker push ${ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/$FUNC:latest)
-HASH_CODE=$(echo $PUSH_RESULT | grep latest | cut -d " " -f3)
-aws lambda update-function-code --region ap-northeast-1 --function-name anemometer_parser_${UNAAS_ENV} --image-uri ${ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/$FUNC@$HASH_CODE ${ARGS}
+tar -cJh . | docker build -t $REPO_NAME:latest --ssh default -
+docker tag $REPO_NAME ${ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/$REPO_NAME
+PUSH_RESULT=$(docker push ${ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/$REPO_NAME:latest)
+HASH_CODE=$(echo $PUSH_RESULT | grep -o 'sha256:[a-z0-9]*' | cut -d " " -f3)
+aws lambda update-function-code --region ap-northeast-1 --function-name $FUNC_NAME --image-uri ${ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/$REPO_NAME@$HASH_CODE ${ARGS}
