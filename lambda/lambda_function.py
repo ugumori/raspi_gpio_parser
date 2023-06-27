@@ -1,3 +1,4 @@
+from raspi_gpio_parser.log import logger
 
 def lambda_handler(event, context):
-    print(event)
+    logger.debug(event)
