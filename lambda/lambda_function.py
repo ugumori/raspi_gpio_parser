@@ -3,14 +3,16 @@ import base64
 import json
 
 from raspi_gpio_parser.log import logger
-
+from raspi_gpio_parser.parsers import parsers
 
 def lambda_handler(event, context):
     logger.debug(event)
+    models = []
     try:
         msgs = load_msgs(event)
-        if msgs:
-            pass  # write
+        for m in msgs:
+            for p in parsers:
+                models.append(p(m))
 
     except Exception as err:
         import traceback
