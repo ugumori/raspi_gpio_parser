@@ -11,8 +11,7 @@ def lambda_handler(event, context):
     try:
         msgs = load_msgs(event)
         for m in msgs:
-            for p in parsers:
-                models.append(p(m))
+            models.append(parse(m))
 
     except Exception as err:
         import traceback
@@ -21,6 +20,14 @@ def lambda_handler(event, context):
         logger.error(traceback.format_exc())
 
     return respond("succeeded")
+
+
+def parse(msg: str):
+    models = []
+    for p in parsers:
+        models.append(p(msg))
+
+    return models
 
 
 def load_msgs(event: dict) -> list[str]:
